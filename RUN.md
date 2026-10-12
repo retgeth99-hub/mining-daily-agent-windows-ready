@@ -7,7 +7,7 @@
 ## A. 本地 uv（推荐先走这条）
 
 ```bash
-git clone https://github.com/retgeth99-hub/-.git mining-daily-agent
+git clone https://github.com/retgeth99-hub/mining-daily-agent-windows-ready.git mining-daily-agent
 cd mining-daily-agent
 
 cp .env.example .env
@@ -29,7 +29,7 @@ uv run python -m mining_daily_agent "给我生成一份关于 Pilbara 锂矿的�
 ## B. Docker
 
 ```bash
-git clone https://github.com/retgeth99-hub/-.git mining-daily-agent
+git clone https://github.com/retgeth99-hub/mining-daily-agent-windows-ready.git mining-daily-agent
 cd mining-daily-agent
 
 cp .env.example .env

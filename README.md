@@ -3,7 +3,7 @@
 给一个主题（比如「Pilbara 锂矿」），自动抓新闻、抽资源量报告、取行情，再让 LLM 合成一份
 带引用编号的 Markdown 每日简报。
 
-[![gate](https://img.shields.io/github/actions/workflow/status/retgeth99-hub/-/ci.yml?job=gate&label=gate&branch=main)](https://github.com/retgeth99-hub/-/actions/workflows/ci.yml)
+[![gate](https://img.shields.io/github/actions/workflow/status/retgeth99-hub/mining-daily-agent-windows-ready/ci.yml?job=gate&label=gate&branch=main)](https://github.com/retgeth99-hub/mining-daily-agent-windows-ready/actions/workflows/ci.yml)
 [![python](https://img.shields.io/badge/python-3.12-blue)](https://www.python.org/)
 [![version](https://img.shields.io/badge/version-v0.1.0-blue)](pyproject.toml)
 
@@ -16,7 +16,7 @@
 ### Windows 10 / 11（推荐）
 
 ```powershell
-git clone https://github.com/retgeth99-hub/-.git mining-daily-agent
+git clone https://github.com/retgeth99-hub/mining-daily-agent-windows-ready.git mining-daily-agent
 cd mining-daily-agent
 .\start-report.cmd
 ```
@@ -28,7 +28,7 @@ Python 3.12 与锁定依赖，不需要预先安装 Python、uv 或 Docker。API
 ### macOS / Linux 或手动运行
 
 ```bash
-git clone https://github.com/retgeth99-hub/-.git mining-daily-agent
+git clone https://github.com/retgeth99-hub/mining-daily-agent-windows-ready.git mining-daily-agent
 cd mining-daily-agent
 cp .env.example .env      # 填入 DeepSeek API key
 uv sync
