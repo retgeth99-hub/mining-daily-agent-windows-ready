@@ -1,0 +1,44 @@
+矿权日报 Agent（Windows）
+=========================
+
+最快启动方式
+------------
+
+1. 解压整个 ZIP，不能只单独取出 start-report.cmd。
+2. 双击 start-report.cmd。
+3. 首次运行时输入 DeepSeek API Key（输入过程不会显示字符）。
+4. 输入日报主题；直接回车默认生成“Pilbara 锂矿”日报。
+5. 程序会自动下载便携版 uv、Python 3.12 和项目依赖，然后生成并打开日报。
+
+运行条件
+--------
+
+- Windows 10 或 Windows 11。
+- 首次运行必须联网，以下载 uv、Python 与依赖；生成日报也需要联网获取新闻、行情、PDF
+  并调用 DeepSeek。
+- 不需要预先安装 Python、uv 或 Docker。
+- 首次运行通常需要 2–5 分钟，以后再次运行会使用本地缓存。
+
+命令行用法
+----------
+
+在项目目录打开命令提示符：
+
+    start-report.cmd "Pilbara 锂矿"
+
+也可以直接运行 PowerShell 启动器并阻止自动打开日报：
+
+    powershell -ExecutionPolicy Bypass -File .\start-report.ps1 -Topic "铜价走势" -NoOpen
+
+输出位置
+--------
+
+- 日报：reports\日期-主题.md
+- 趋势图：reports\assets\日期-主题-price-trend.svg
+
+安全说明
+--------
+
+- API Key 只保存在本机解压目录的 .env 文件中。
+- .env 已被 Git 与交付压缩包排除；不要把生成后的 .env 发给其他人。
+- 如果 API Key 曾通过聊天、邮件或截图发送，建议在服务商控制台轮换。

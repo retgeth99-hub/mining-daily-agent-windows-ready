@@ -1,0 +1,148 @@
+[project]
+name = "mining-daily-agent"
+version = "0.1.0"
+description = "Add your description here"
+readme = "README.md"
+authors = [
+    { name = "lucky egg", email = "3468926535@qq.com" }
+]
+requires-python = ">=3.12"
+dependencies = [
+    "beautifulsoup4>=4.15.0",
+    "feedparser>=6.0.14",
+    "httpx>=0.28.1",
+    "langchain-openai>=1.6.2",
+    "langgraph>=1.2.11",
+    "lxml>=6.1.3",
+    "mcp[cli]>=2.2.0",
+    "pdfplumber>=0.11.10",
+    "pydantic>=2.13.5",
+    "python-dotenv>=1.2.3",
+]
+
+[project.scripts]
+# 指向真正的 CLI：`uv run mining-daily-agent "<主题>"` 与
+# `uv run python -m mining_daily_agent "<主题>"` 走的是同一个 main。
+mining-daily-agent = "mining_daily_agent.__main__:main"
+
+[build-system]
+requires = ["uv_build>=0.12.3,<0.13.0"]
+build-backend = "uv_build"
+
+[dependency-groups]
+dev = [
+    "mypy>=2.3.1",
+    "pre-commit>=4.6.2",
+    "pytest>=9.1.1",
+    "pytest-asyncio>=1.4.0",
+    "pytest-cov>=7.1.0",
+    "reportlab>=5.0.1",
+    "ruff>=0.16.7",
+]
+
+[tool.ruff]
+line-length = 100
+target-version = "py312"
+src = ["src", "tests", "scripts"]
+
+[tool.ruff.lint]
+select = [
+    "E",   # pycodestyle errors
+    "W",   # pycodestyle warnings
+    "F",   # pyflakes
+    "I",   # isort
+    "N",   # pep8-naming
+    "UP",  # pyupgrade
+    "ANN", # 类型注解缺失（含 ANN401：禁止裸 Any）→「代码质量与类型」
+    "A",   # 禁止遮蔽内置名
+    "B",   # flake8-bugbear
+    "C4",  # 推导式简化
+    "RET", # 返回值简化
+    "SIM", # 逻辑简化
+    "TID", # 导入规范
+    "TCH", # 类型检查专用导入
+    "PTH", # 用 pathlib 取代 os.path
+    "T20", # 禁止 print →「日志」
+    "ARG", # 未使用的参数
+    "PT",  # pytest 风格
+    "RUF", # ruff 自有规则
+]
+ignore = [
+    # 本项目是中文代码库：docstring、注释与错误信息均使用中文全角标点。
+    # 以下三条会把全角逗号/括号/冒号判为「易混淆字符」，在此属误报，故关闭。
+    "RUF001", # 字符串中的全角标点
+    "RUF002", # docstring 中的全角标点
+    "RUF003", # 注释中的全角标点
+]
+
+[tool.ruff.lint.per-file-ignores]
+# tests/ 不被生产代码导入，注解所需的导入留在模块顶层更易读，故放开 TC00x；
+# ARG001/ARG002 覆盖「参数只为满足接口签名而存在」的假实现（fixture、假 LLM 等）。
+"tests/**" = ["ARG001", "ARG002", "TC001", "TC002", "TC003"]
+
+# 面向人的命令行入口：输出本身就是给终端看的报告，不是服务日志。
+# 「禁止 print」约束的是库与 server 代码（日志要结构化、可采集），CLI 的 stdout
+# 输出正是它的产出，用 logging 反而绕。两者职责不同，故在此放行 T201。
+"scripts/**" = ["T201"]
+"src/mining_daily_agent/__main__.py" = ["T201"]
+
+[tool.mypy]
+python_version = "3.12"
+# 门禁命令就是裸 `mypy`（配合 pre-commit 钩子与 CI），因此这个列表就是检查范围。
+# 不要把命令写回 `mypy src`：那会覆盖此列表，让 tests/ 与 scripts/ 的类型错误溜过去。
+files = ["src", "tests", "scripts"]
+strict = true
+disallow_any_explicit = true
+warn_unused_ignores = true
+warn_redundant_casts = true
+no_implicit_reexport = true
+show_error_codes = true
+
+[[tool.mypy.overrides]]
+# 两处都是「框架的类构造签名本身带 Any」导致的必然结果，改写业务代码无法消除：
+# - pydantic 的 BaseModel 构造签名是 `(**data: Any)`；
+# - TypedDict 的构造签名同理（agent.state.BriefState 会在类定义行触发）。
+# 只对这两处放开该项，其余模块仍保持最严格；模块内部的「禁止裸 Any」由 ruff 的
+# ANN401 继续把关函数签名。
+module = ["mining_daily_agent.models.*", "mining_daily_agent.agent.state"]
+disallow_any_explicit = false
+
+[[tool.mypy.overrides]]
+# reportlab 未提供 py.typed；它只在测试里用来现生成 PDF 夹具。
+module = ["reportlab", "reportlab.*"]
+ignore_missing_imports = true
+
+[[tool.mypy.overrides]]
+# feedparser 既不提供 py.typed 也没有官方 stubs，只能整体放宽。
+# 其返回值按 Any 处理，但 rss.py 里所有取值都经 _text/_parse_datetime
+# 归一化后才使用，不会把 Any 泄漏到对外类型。
+module = ["feedparser"]
+ignore_missing_imports = true
+
+[tool.pytest.ini_options]
+minversion = "9.0"
+testpaths = ["tests"]
+asyncio_mode = "auto"
+asyncio_default_fixture_loop_scope = "function"
+addopts = [
+    "-q",
+    "--strict-markers",
+    "--strict-config",
+    "--cov=mining_daily_agent",
+    "--cov-report=term-missing",
+]
+
+[tool.coverage.run]
+source = ["mining_daily_agent"]
+branch = true
+
+[tool.coverage.report]
+fail_under = 70
+show_missing = true
+exclude_lines = [
+    "pragma: no cover",
+    "if TYPE_CHECKING:",
+    "if __name__ == .__main__.:",
+    "raise NotImplementedError",
+    "@overload",
+]
